@@ -1,7 +1,11 @@
-#include <avr/io.h>
-#include "clock.h"
+/* 
+   Pulsgenerator
+ */
 
-void setup_clock()
+#include <avr/io.h>
+#include "pulse.h"
+
+void setup_pulse()
 {
   DDRD = 1 << 6;
   TCCR0A = (1 << COM0A0) | (1 << WGM01);
