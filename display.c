@@ -4,7 +4,7 @@
    Display er koblet til følgende pinner:
 
    Display-pinne    Signal      Atmega
-   4                RS          PD0
+   4                RS          PD7
    6                E           PB0
    7 - 11           DB0 - DB4   PD0 - PD4
    12, 13           DB5, DB6    PB6, PB7
@@ -13,5 +13,12 @@
 
 #include "display.h"
 #include <avr/io.h>
+
+// Bitposisjonene til RS og E i portregisterene
+#define RS 7
+#define E 0
+#define DB0_DB4 0
+#define DB5_DB6 6
+#define DB7 5
 
 /* kode ... */

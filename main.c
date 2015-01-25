@@ -1,8 +1,8 @@
 #include <avr/io.h>
-#include "clock.h"
+#include "pulse.h"
 
 int main()
 {
-  setup_clock();
+  setup_pulse();
   while (1);
 }
