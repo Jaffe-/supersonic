@@ -99,4 +99,4 @@ disasm:	main.elf
 	avr-objdump -d main.elf
 
 cpp:
-	$(COMPILE) -E main.c clock.c
+	$(COMPILE) -E main.c pulse.c
