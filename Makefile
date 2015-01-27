@@ -7,7 +7,7 @@ TARGET = output
 # Target type
 MCU=atmega328
 PROGRAMMER=jtag3isp
-F_CPU=20000000L
+F_CPU=8000000L
  
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)

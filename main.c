@@ -1,15 +1,15 @@
 #include <avr/io.h>
 
-#define F_CPU 8000000
+#define F_CPU 8000000L
 
-#include <avr/delay.h>
+#include <util/delay.h>
 #include "pulse.h"
 
 int main()
 {
   setup_pulse();
   while (1) {
-    _delay_ms(2);
-    pulse(500);
+    _delay_ms(8);
+    pulse(2000);
   }
 }
