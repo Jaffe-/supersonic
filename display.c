@@ -1,7 +1,7 @@
 /* 
    Displayfunksjoner
 
-   Display er koblet til følgende pinner:
+   Displayet er koblet til følgende pinner:
 
    Display-pinne    Signal      Atmega
    4                RS          PD7
@@ -17,7 +17,7 @@
 // Bitposisjonene til RS og E i portregisterene
 #define RS 7
 #define E 0
-#define DB0_DB4 0
+#define DB0_4 0
 #define DB5_DB6 6
 #define DB7 5
 
