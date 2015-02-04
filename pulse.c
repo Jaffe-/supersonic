@@ -26,11 +26,11 @@ void pulse(uint16_t time)
   TCCR1B |= 1 << CS10;
 }
 
-void setup_pulse()
+void pulse_setup()
 {
   sei();
 
-  DDRD = 1 << 6;
+  DDRD |= 1 << 6;
   TCCR0A = (1 << COM0A0) | (1 << WGM01);
   TCCR0B = 1 << CS00;
   OCR0A = 100;

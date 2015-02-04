@@ -200,10 +200,15 @@ void display_scroll(uint8_t direction)
   shift(1, direction);
 }
 
+void display_print_char(char c)
+{
+  write(MODE_DATA, c);
+}
+
 void display_print(char* string) 
 {
   for (uint8_t i = 0; string[i] != 0; i++) 
-    write(MODE_DATA, string[i]);
+    display_print_char(string[i]);
 }
 
 void scroll_window(uint8_t direction)
@@ -265,4 +270,14 @@ void display_print_fixed(fixed_t number)
     write(MODE_DATA, '.');
     display_print_number(rest_digits);
   }
+}
+
+void display_write_character(uint8_t index, uint8_t pixels[8])
+{
+  uint8_t base_address = index << 3;
+  cgram_address(base_address);
+  for (uint8_t i = 0; i < 8; i++) {
+    write(MODE_DATA, pixels[i]);
+  }
+  ddram_address(0);
 }

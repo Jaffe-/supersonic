@@ -6,16 +6,14 @@
 #include "pulse.h"
 #include "display.h"
 #include "fixed_point.h"
+#include "input.h"
 
 int main()
 {
-  /*  setup_pulse();
-  while (1) {
-    _delay_ms(10);
-    pulse(2000);
-    } */
-
   display_setup(); 
+  input_setup();
+  pulse_setup();
+
   display_setcursor(1, 2, 1);
   display_print("Fuck you!");
   display_setcursor(2, 1, 1);
@@ -26,9 +24,12 @@ int main()
   //display_print_number(-fixed_sub(a,b).value);
   display_print_fixed(fixed_div(a,b));
   while(1) {
-    _delay_ms(1000);
-    display_move_window(2);
-    _delay_ms(1000);
-    display_move_window(1);
+    input_update();
+    if (input_pressed(BUTTON_RIGHT))
+      display_move_window(2);
+    if (input_pressed(BUTTON_LEFT))
+      display_move_window(1);
+    if (input_pressed(BUTTON_UP))
+      pulse(65000);
   }
 }
