@@ -5,13 +5,13 @@
 #include <avr/delay.h>
 #include "display.h"
 
-#define DEBOUNCE_TIME 10
+#define DEBOUNCE_TIME 15
 
-uint8_t input;
-uint8_t last_input;
+static uint8_t input;
+static uint8_t last_input;
 
-void get_input();
-inline uint8_t read_input();
+static inline uint8_t read_input();
+static inline uint8_t get_button_state(uint8_t input, button_e button);
 
 /* External functions */
 void input_setup() 
@@ -21,42 +21,48 @@ void input_setup()
 
 uint8_t input_on(button_e button)
 {
-  return !(input >> button);
+  return !get_button_state(input, button);
 }
 
 uint8_t input_pressed(button_e button) 
 {
-  uint8_t state = input >> button;
-  uint8_t last_state = last_input >> button;
+  uint8_t state = get_button_state(input, button);
+  uint8_t last_state = get_button_state(last_input, button);
   return (state == 0 && last_state == 1);
 }
 
 uint8_t input_depressed(button_e button) 
 {
-  uint8_t state = input >> button;
-  uint8_t last_state = last_input >> button;
+  uint8_t state = get_button_state(input, button);
+  uint8_t last_state = get_button_state(last_input, button);
   return (state == 1 && last_state == 0);
 }
 
 void input_update()
 {
+  // Save last input. This is needed for the press and depress functions
   last_input = input;
+
+  // Debounce by reading, waiting DEBOUNCE_TIME ms and reading again
   uint8_t first = read_input();
-  uint8_t change = input ^ first;
   _delay_ms(DEBOUNCE_TIME);
   uint8_t next = read_input();
-  input = change ^ next;
+
+  // OR the two read values to get the resulting value (a press is thus only
+  // detected when both first and next is 0
+  input = first | next;
 }
-
-
 
 /* Internal functions */
 
-inline uint8_t read_input()
+static inline uint8_t read_input()
 {
-  uint8_t inp = PINC & 0b00001111;
-  //display_binary(inp);
-  return inp;
+  return PINC & 0b00001111;
+}
+
+static inline uint8_t get_button_state(uint8_t input, button_e button)
+{
+  return (input >> button) & 1;
 }
 
 
