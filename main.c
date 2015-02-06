@@ -100,7 +100,7 @@ int main()
       0b0000000000
     },
     {
-      0b0000000000,
+      0b10000000000,
       0b0000000000,
       0b0000000000,
       0b0000000000,
@@ -118,7 +118,7 @@ int main()
       0b0000000000
     },
     {
-      0b0000000000,
+      0b10000000000,
       0b0000000000,
       0b0000000000,
       0b0000000000,
@@ -136,7 +136,7 @@ int main()
       0b0000000000
     },
     {
-      0b0000000000,
+      0b10000000000,
       0b0000000000,
       0b0000000000,
       0b0111110000,
@@ -155,7 +155,7 @@ int main()
     }
   };
 
-  animation_t logo = {.width = 2, .height = 2,
+  animation_t logo = {.width = 3, .height = 2,
 		      .frames = logo_frames,
 		      .num_frames = 6,
 		      .first_character = 1,
@@ -165,7 +165,7 @@ int main()
 		      .frames = bupp_frames,
 		      .num_frames = 3,
 		      .first_character = 0,
-		      .count = 10};
+		      .count = 8};
   
   animation_init(&bupp);
   animation_init(&logo);
@@ -174,9 +174,9 @@ int main()
   display_print("Fuck you! ");
   display_setcursor(2, 1, 1);
   display_print("Fuck you too!");
-  animation_display(&bupp, 1, 14, 1);
-  animation_display(&logo, 1, 12, 1);
-  
+  animation_display(&bupp, 1, 1, 1);
+  animation_display(&logo, 1, 10, 1);
+  animation_display(&logo, 1, 13, 1);
   while(1) {
     input_update();
 
