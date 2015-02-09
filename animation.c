@@ -10,8 +10,8 @@ void animation_animate(animation_t* a)
 /*
   Animates an animation
 
-  Fethces the next set of pixel data for each character used in the animation
-  and updates CGRAM
+  Updates CGRAM with the next set of pixel data for each character used in the 
+  animation
 */
 {  
   if (++a->counter == a->count) {
@@ -51,15 +51,16 @@ void animation_animate(animation_t* a)
   }
 }
 
-void animation_display(animation_t* a, uint8_t scr, uint8_t x, uint8_t y)
+void animation_display(animation_t* a, uint8_t scr, uint8_t line, uint8_t start_col)
 /*
-  Displays an animation on the screen by writing its character codes to DDRAM
+  Displays an animation on the screen by writing the character codes it consists
+  of to DDRAM
  */
 {
   uint8_t character = a->first_character;
 
   for (uint8_t row = 0; row < a->height; row++) {
-    display_setcursor(scr, y + row, x);
+    display_setcursor(scr, line + row, start_col);
     for (uint8_t col = 0; col < a->width; col++) {
       display_print_char(character++);
     }
@@ -67,6 +68,9 @@ void animation_display(animation_t* a, uint8_t scr, uint8_t x, uint8_t y)
 }
 
 void animation_init(animation_t* a)
+/*
+  Initializes animation object
+*/
 {
   a->counter = 0;
   a->current_frame = 0;

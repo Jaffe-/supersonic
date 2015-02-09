@@ -99,7 +99,7 @@ int main()
       0b0000000000
     },
     {
-      0b10000000000,
+      0b0000000000,
       0b0000000000,
       0b0000000000,
       0b0000000000,
@@ -117,7 +117,7 @@ int main()
       0b0000000000
     },
     {
-      0b10000000000,
+      0b0000000000,
       0b0000000000,
       0b0000000000,
       0b0000000000,
@@ -135,7 +135,7 @@ int main()
       0b0000000000
     },
     {
-      0b10000000000,
+      0b0000000000,
       0b0000000000,
       0b0000000000,
       0b0111110000,
@@ -154,13 +154,13 @@ int main()
     }
   };
 
-  /*
-  animation_t logo = {.width = 3, .height = 2,
+  
+  animation_t logo = {.width = 2, .height = 2,
 		      .frames = logo_frames,
 		      .num_frames = 6,
 		      .first_character = 1,
-		      .count = 1};
-  
+		      .count = 2};
+  /*
   animation_t bupp = {.width = 1, .height = 1,
 		      .frames = bupp_frames,
 		      .num_frames = 3,
@@ -169,18 +169,20 @@ int main()
 */    
   display_setcursor(1, 2, 1);
   display_print_string("Fuck you! ");
-  display_setcursor(1, 1, 1);
 
   uint16_t timer_value = 65535;  
   float distance = (timer_value * 340.0) / (2 * 1000000.0);
-  float distance_cm = distance * 100.0;
-  float distance_mm = distance_cm * 10.0;
+
+  animation_init(&logo);
+  animation_display(&logo, 1, 1, 14);
   
-  display_print_float(distance);
+  display_setcursor(1, 1, 1);
+  display_print_float(distance * 1000);
   display_setcursor(2, 1, 1);
   display_print_string("Fuck you too!");
   while(1) {
-
+    animation_animate(&logo);
+    
     input_update();
 
     if (input_pressed(BUTTON_RIGHT))

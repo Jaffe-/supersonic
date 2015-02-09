@@ -17,5 +17,6 @@ typedef struct {
   uint8_t current_frame;
 } animation_t;
 
-void animation_display(animation_t* a, uint8_t scr, uint8_t x, uint8_t y);
+void animation_display(animation_t* a, uint8_t scr, uint8_t line, uint8_t start_col);
 void animation_animate(animation_t* a);
+void animation_init(animation_t* a);
