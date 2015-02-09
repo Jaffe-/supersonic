@@ -1,5 +1,5 @@
 /* 
-   Pulsgenerator
+   Pulse generator
  */
 
 #include <avr/io.h>
@@ -28,13 +28,32 @@ void pulse(uint16_t time)
 
 void pulse_setup()
 {
+  // Enable interrupts
   sei();
 
+  // Set PD6 as output
   DDRD |= 1 << 6;
-  TCCR0A = (1 << COM0A0) | (1 << WGM01);
-  TCCR0B = 1 << CS00;
-  OCR0A = 100;
 
+
+  /* Timer 0 setup */
+  
+  // Set WGM02:0 to 010 to put the timer in Clear Timer on Compare Match (CTC) mode
+  // Set COM0A1:0 to 1 to make it toggle PD6 each time the counter reaches the top
+  // value set in OCR0A
+  TCCR0A = (1 << COM0A0) | (1 << WGM01);
+
+  // CS02:0 = 1 means no prescaling
+  TCCR0B = 1 << CS00;
+
+  // Set compare value for the timer. The timer resets when it reaches this value
+  // Correction: f = f_CPU / (2 * (OCR0A + 1))
+  // changed value from 100 to 99, which will give an exact 40 kHz square wave:
+  // 8e6 / (2 * (99 + 1)) = 40e3
+  OCR0A = 99;
+
+
+  /* Timer 1 setup */
+  
   TCCR1B = (1 << WGM12); 
   TIMSK1 = 1 << OCIE1A;  
 }

@@ -5,7 +5,6 @@
 #include <util/delay.h>
 #include "pulse.h"
 #include "display.h"
-#include "fixed_point.h"
 #include "input.h"
 #include "animation.h"
 
@@ -155,33 +154,34 @@ int main()
     }
   };
 
+  /*
   animation_t logo = {.width = 3, .height = 2,
 		      .frames = logo_frames,
 		      .num_frames = 6,
 		      .first_character = 1,
-		      .count = 5};
+		      .count = 1};
   
   animation_t bupp = {.width = 1, .height = 1,
 		      .frames = bupp_frames,
 		      .num_frames = 3,
 		      .first_character = 0,
 		      .count = 8};
-  
-  animation_init(&bupp);
-  animation_init(&logo);
-  
+*/    
   display_setcursor(1, 2, 1);
-  display_print("Fuck you! ");
-  display_setcursor(2, 1, 1);
-  display_print("Fuck you too!");
-  animation_display(&bupp, 1, 1, 1);
-  animation_display(&logo, 1, 10, 1);
-  animation_display(&logo, 1, 13, 1);
-  while(1) {
-    input_update();
+  display_print_string("Fuck you! ");
+  display_setcursor(1, 1, 1);
 
-    animation_animate(&bupp);
-    animation_animate(&logo);
+  uint16_t timer_value = 65535;  
+  float distance = (timer_value * 340.0) / (2 * 1000000.0);
+  float distance_cm = distance * 100.0;
+  float distance_mm = distance_cm * 10.0;
+  
+  display_print_float(distance);
+  display_setcursor(2, 1, 1);
+  display_print_string("Fuck you too!");
+  while(1) {
+
+    input_update();
 
     if (input_pressed(BUTTON_RIGHT))
       display_move_window(2);

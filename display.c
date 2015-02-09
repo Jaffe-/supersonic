@@ -14,7 +14,6 @@
 */
 
 #include "display.h"
-#include "fixed_point.h"
 #include <avr/io.h>
 
 #define F_CPU 8000000L
@@ -208,17 +207,6 @@ void display_scroll(uint8_t direction)
   shift(1, direction);
 }
 
-void display_print_char(char c)
-{
-  write(MODE_DATA, c);
-}
-
-void display_print(char* string) 
-{
-  for (uint8_t i = 0; string[i] != 0; i++) 
-    display_print_char(string[i]);
-}
-
 void scroll_window(uint8_t direction)
 {
   for (uint8_t i = 0; i < 16; i++) {
@@ -241,8 +229,29 @@ void display_move_window(uint8_t screen)
   current_screen = screen;
 }
 
-void display_print_number(uint16_t number)
+void display_print_char(char c)
 {
+  write(MODE_DATA, c);
+}
+
+void display_print_string(char* string) 
+{
+  for (uint8_t i = 0; string[i] != 0; i++) 
+    display_print_char(string[i]);
+}
+
+void display_print_integer(int16_t number)
+{
+  if (number == 0) {
+    display_print_char('0');
+    return;
+  }
+
+  if (number < 0) {
+    display_print_char('-');
+    number = -number;
+  }
+  
   uint8_t digits[6] = {0};
 
   uint8_t i = 5;
@@ -254,30 +263,37 @@ void display_print_number(uint16_t number)
   }
   
   for (uint8_t j = i+1; j < 6; j++) {
-    write(MODE_DATA, '0' + digits[j]);
+    display_print_char('0' + digits[j]);
   }
 
 }
 
-void display_print_fixed(fixed_t number) 
+void display_print_float(float f)
 {
-  uint16_t scale = 1;
-  for (uint8_t i = 0; i < number.scale; i++) 
-    scale *= 10;
+  uint16_t int_part = (uint16_t)f;
 
-  if (number.value < 0) {
-    write(MODE_DATA, '-');
-    number.value = -number.value;
+  if (f < 0) {
+    display_print_char('-');
+    f = -f;
   }
+  
+  display_print_integer(int_part);
+  
+  display_print_char('.');
 
-  uint8_t first_digit = number.value / scale;
-  uint16_t rest_digits = number.value - first_digit * scale;
+  // Subtract the integer part
+  f -= int_part;
 
-  write(MODE_DATA, 48 + first_digit);
-  if (rest_digits > 0) {
-    write(MODE_DATA, '.');
-    display_print_number(rest_digits);
-  }
+  // Multiply by 1000 to get last three decimals
+  f *= 1000;
+  int_part = (int16_t)f;
+  
+  // If the last digit is larger than 4, round up
+  if (int_part % 10 > 4)
+    int_part += 10;
+
+  // Divide by 10 to get two first decimals and print
+  display_print_integer(int_part / 10);
 }
 
 void display_write_character(uint8_t index, uint8_t pixels[8])
