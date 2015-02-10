@@ -1,4 +1,5 @@
 #pragma once
 
 void pulse_setup();
-void pulse(uint16_t time);
+uint16_t buffer_read();
+uint8_t buffer_unread_elements();

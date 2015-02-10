@@ -8,6 +8,46 @@
 
 #define F_CPU 8000000L
 
+#define STATE_PULSE 0
+#define STATE_WAIT 1
+
+static uint8_t state;
+
+#define BUFFER_LENGTH 32
+
+uint16_t buffer[BUFFER_LENGTH] = {0};
+
+uint8_t write_pos = 0;
+uint8_t read_pos = 0;
+
+void buffer_write(uint16_t value)
+{
+  buffer[write_pos] = value;
+
+  if (++write_pos == BUFFER_LENGTH) 
+    write_pos = 0;
+}
+
+uint16_t buffer_read() 
+{
+  uint16_t value = buffer[read_pos];
+  
+  if (++read_pos == BUFFER_LENGTH) 
+    read_pos = 0;
+
+  return value;
+}
+
+uint8_t buffer_unread_elements()
+{
+  if (write_pos >= read_pos)
+    return write_pos - read_pos;
+  else {
+    return BUFFER_LENGTH - (read_pos - write_pos);
+  }
+  
+}
+
 void stop_pulse()
 {
   TCCR0A &= ~(1 << COM0A0);  
@@ -15,15 +55,18 @@ void stop_pulse()
 
 void start_pulse()
 {
+  TCNT0 = 0;
   TCCR0A |= 1 << COM0A0;
 }
 
-void pulse(uint16_t time)
-/* time is value in micro seconds */
+void reset_timer()
 {
-  OCR1A = (uint16_t)8 * time;
-  start_pulse();
-  TCCR1B |= 1 << CS10;
+  TCNT1 = 0;
+}
+
+void read_timer()
+{
+  buffer_write(TCNT1);
 }
 
 void pulse_setup()
@@ -53,14 +96,52 @@ void pulse_setup()
 
 
   /* Timer 1 setup */
-  
-  TCCR1B = (1 << WGM12); 
-  TIMSK1 = 1 << OCIE1A;  
+
+  // Set prescaling to 8
+  TCCR1B = 1 << CS11;  
+
+
+  /* Timer 2 setup */
+    
+  // Put timer 2 in CTC mode
+  TCCR2A = 1 << WGM21;
+
+  // Set prescaling to 1024
+  TCCR2B = 0b111 << CS20;
+
+  // Set initial compare match value
+  OCR2A = 7;
+
+  // Enable interrupt on compare match on timer 2
+  TIMSK2 = 1 << OCIE2A;
+
+
+  /* Enable pin change interrupt on PC4 */
+  PCMSK1 = 1 << PCINT12;
+  PCICR = 1 << PCIE1;
+
+  state = STATE_PULSE;
 }
 
-ISR(TIMER1_COMPA_vect) 
+ISR(TIMER2_COMPA_vect) 
 {
-  stop_pulse(); 
-  TCCR1B &= ~(1 << CS10);
-  TCNT1 = 0;
+  if (state == STATE_PULSE) {
+    stop_pulse(); 
+    OCR2A = 255;
+    state = STATE_WAIT;
+  }
+  else {
+    start_pulse();
+    reset_timer();
+    OCR2A = 7;
+    state = STATE_PULSE;
+  } 
+}
+
+ISR(PCINT1_vect) 
+{
+  // If pin is high, put the timer value in the buffer
+  if (PINC & (1 << PC4)) {
+    read_timer();
+  }
 }

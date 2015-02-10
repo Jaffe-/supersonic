@@ -170,27 +170,28 @@ int main()
   display_setcursor(1, 2, 1);
   display_print_string("Fuck you! ");
 
-  uint16_t timer_value = 65535;  
-  float distance = (timer_value * 340.0) / (2 * 1000000.0);
 
   animation_init(&logo);
   animation_display(&logo, 1, 1, 14);
   
-  display_setcursor(1, 1, 1);
-  display_print_float(distance * 1000);
+  //  display_setcursor(1, 1, 1);
+  // display_print_float(distance);
   display_setcursor(2, 1, 1);
   display_print_string("Fuck you too!");
   while(1) {
     animation_animate(&logo);
-    
     input_update();
+
+    if (buffer_unread_elements() >= 1) {
+      float distance = (buffer_read() * 340.0) / (2 * 1000000.0);
+      display_setcursor(1,1,1);
+      display_print_float(distance);
+    }
 
     if (input_pressed(BUTTON_RIGHT))
       display_move_window(2);
     if (input_pressed(BUTTON_LEFT))
       display_move_window(1);
-    if (input_pressed(BUTTON_UP))
-      pulse(65000);
       
   }
 }
