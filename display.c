@@ -154,11 +154,11 @@ void display_setup()
 //    DDRB |= 0b11000001;
 
     // Start reset procedure described in the display controller's datasheet.
-    _delay_ms(50);
+    _delay_ms(60);
     functionset(1, 0, 0);
-    _delay_ms(5);
+    _delay_ms(10);
     functionset(1, 0, 0);
-    _delay_us(150);
+    _delay_us(200);
     functionset(1, 0, 0);
 
     // Set 8-bit communication, 2-line display and 5x8 font:

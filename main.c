@@ -3,17 +3,29 @@
 #define F_CPU 8000000L
 
 #include <util/delay.h>
+#include <math.h>
 #include "pulse.h"
 #include "display.h"
 #include "input.h"
 #include "animation.h"
 
+
+inline float fsquare(float f)
+{
+  return f * f;
+}
+
 int main()
 {
+  //while(1);
   display_setup(); 
   input_setup();
   pulse_setup();
 
+  display_setcursor(1,1,7);
+  display_print_string("HEI");
+  while(1);
+  
   uint8_t bupp_frames[][8] = {
     {0b01110,
      0b10001,
@@ -171,21 +183,37 @@ int main()
   display_print_string("Fuck you! ");
 
 
-  animation_init(&logo);
-  animation_display(&logo, 1, 1, 14);
+  //animation_init(&logo);
+  //animation_display(&logo, 1, 1, 8);
   
   //  display_setcursor(1, 1, 1);
   // display_print_float(distance);
   display_setcursor(2, 1, 1);
-  display_print_string("Fuck you too!");
+  display_print_string("Fuck you too!AAAAAA");
+  
   while(1) {
     animation_animate(&logo);
     input_update();
+    //display_clear();
 
-    if (buffer_unread_elements() >= 1) {
-      float distance = (buffer_read() * 340.0) / (2 * 1000000.0);
+    if (buffer_unread_elements() >= 8) {
+      float distance_sum = 0;
+      float distance_min = 1000;
+      for (uint8_t i = 0; i < 8; i++) {
+	float dist = (buffer_read() * 340.0) / (2 * 1000000.0);
+	distance_sum += dist;
+	if (dist < distance_min)
+	  distance_min = dist;
+      }
+      float mean = distance_sum / 8.0;
+      float distance = sqrtf(fsquare(mean) - fsquare(0.0325));
+
+      //float distance = distance_sum / 4.0;
+      display_clear();
       display_setcursor(1,1,1);
-      display_print_float(distance);
+      display_print_float(distance * 100);
+      display_setcursor(1,2,1);
+      display_print_float(distance_min * 100);
     }
 
     if (input_pressed(BUTTON_RIGHT))
