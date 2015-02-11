@@ -270,12 +270,12 @@ void display_print_integer(int16_t number)
 
 void display_print_float(float f)
 {
-  uint16_t int_part = (uint16_t)f;
-
   if (f < 0) {
     display_print_char('-');
     f = -f;
   }
+
+  uint16_t int_part = (uint16_t)f;
   
   display_print_integer(int_part);
   
