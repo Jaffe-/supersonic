@@ -207,28 +207,6 @@ void display_scroll(uint8_t direction)
   shift(1, direction);
 }
 
-void scroll_window(uint8_t direction)
-{
-  for (uint8_t i = 0; i < 16; i++) {
-    display_scroll(direction);
-    _delay_ms(50);
-  }
-}
-
-void display_move_window(uint8_t screen)
-{
-  if (current_screen == screen)
-    return;
-
-  if (screen == 1) 
-    scroll_window(LEFT);
-
-  else
-    scroll_window(RIGHT);
-
-  current_screen = screen;
-}
-
 void display_print_char(char c)
 {
   write(MODE_DATA, c);
@@ -317,4 +295,135 @@ void display_write_character(uint8_t index, uint8_t pixels[8])
 
     // Write to DDRAM address 0 to avoid accidentally writing to CGRAM
     ddram_address(0);
+}
+
+
+/* Window functions */
+
+#define SCREEN_HEIGHT 4
+
+static uint8_t screens[2][SCREEN_HEIGHT][16];
+
+void screen_setup(void)
+{
+  for (uint8_t screen = 0; screen < 2; screen++) {
+    screen_clear(screen);
+  }
+}
+
+void screen_print_string(char* string) 
+{
+  for (uint8_t i = 0; string[i] != 0; i++) 
+    screen_print_char(string[i]); 
+}
+
+void window_update(uint8_t screen, uint8_t line) 
+{
+  for (uint8_t l = line; l <= line + 1; l++) {
+    display_setcursor(screen + 1, l - line + 1, 1);
+    for (uint8_t i = 0; i < 16; i++) {
+      display_print_char(screens[screen][l][i]);
+    }
+  }  
+}
+
+void scroll_window(uint8_t direction)
+{
+  for (uint8_t i = 0; i < 16; i++) {
+    display_scroll(direction);
+    _delay_ms(50);
+  }
+}
+
+void display_move_window(uint8_t screen)
+{
+  if (current_screen == screen)
+    return;
+
+  if (screen == 1) 
+    scroll_window(LEFT);
+
+  else
+    scroll_window(RIGHT);
+
+  current_screen = screen;
+}
+
+static uint8_t cur_screen, cur_line, cur_col;
+
+void screen_print_char(char c) 
+{
+  screens[cur_screen][cur_line][cur_col++] = c;
+}
+
+void screen_print_integer(int16_t number)
+{  
+  if (number == 0) {
+    screen_print_char('0');
+    return;
+  }
+
+  if (number < 0) {
+    screen_print_char('-');
+    number = -number;
+  }
+  
+  uint8_t digits[6] = {0};
+
+  uint8_t i = 5;
+  while (number > 0) {
+    uint8_t digit = number % 10;
+    digits[i--] = digit;   
+    number -= digit;
+    number /= 10;
+  }
+  
+  for (uint8_t j = i+1; j < 6; j++) {
+    screen_print_char('0' + digits[j]);
+  }
+
+}
+
+void screen_setcursor(uint8_t screen, uint8_t line, uint8_t col) 
+{
+  cur_screen = screen;
+  cur_line = line;
+  cur_col = col;
+}
+
+void screen_print_float(float f)
+{  
+  if (f < 0) {
+    screen_print_char('-');
+    f = -f;
+  }
+
+  uint16_t int_part = (uint16_t)f;
+  
+  screen_print_integer(int_part);
+  
+  screen_print_char('.');
+
+  // Subtract the integer part
+  f -= int_part;
+
+  // Multiply by 1000 to get last three decimals
+  f *= 1000;
+  int_part = (int16_t)f;
+  
+  // If the last digit is larger than 4, round up
+  if (int_part % 10 > 4)
+    int_part += 10;
+
+  // Divide by 10 to get two first decimals and print
+  screen_print_integer(int_part / 10);
+}
+
+void screen_clear(uint8_t screen)
+{
+  for (uint8_t i = 0; i < SCREEN_HEIGHT; i++) {
+    for (uint8_t j = 0; j < 16; j++) 
+      screens[screen][i][j] = ' ';
+  }
+
 }

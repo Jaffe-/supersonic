@@ -13,3 +13,12 @@ void display_print_string(char* string);
 void display_print_integer(int16_t number);
 void display_print_char(char c);
 void display_print_float(float f);
+
+void window_update(uint8_t screen, uint8_t line);
+void screen_print_string(char* string);
+void screen_print_integer(int16_t number);
+void screen_print_float(float f);
+void screen_print_char(char c);
+void screen_setcursor(uint8_t screen, uint8_t line, uint8_t col);
+void screen_setup(void);
+void screen_clear(uint8_t screen);

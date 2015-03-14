@@ -13,7 +13,7 @@
 
 static uint8_t state;
 
-#define BUFFER_LENGTH 32
+#define BUFFER_LENGTH 64
 
 uint16_t buffer[BUFFER_LENGTH] = {0};
 
