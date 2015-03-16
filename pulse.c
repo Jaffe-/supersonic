@@ -17,23 +17,31 @@ static uint8_t state;
 
 uint16_t buffer[BUFFER_LENGTH] = {0};
 
-uint8_t write_pos = 0;
-uint8_t read_pos = 0;
+uint8_t write_pos;
+uint8_t read_pos;
+uint8_t written;
+uint8_t read;
+
+uint8_t unread;
 
 void buffer_write(uint16_t value)
 {
   buffer[write_pos] = value;
-
+    
   if (++write_pos == BUFFER_LENGTH) 
     write_pos = 0;
+        
 }
 
 uint16_t buffer_read() 
 {
+  static cnt = 0;
   uint16_t value = buffer[read_pos];
   
   if (++read_pos == BUFFER_LENGTH) 
     read_pos = 0;
+
+  //  unread--;
 
   return value;
 }
@@ -45,6 +53,8 @@ uint8_t buffer_unread_elements()
   else {
     return BUFFER_LENGTH - (read_pos - write_pos);
   }
+
+  //return unread;
   
 }
 

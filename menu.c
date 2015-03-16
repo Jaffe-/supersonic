@@ -8,13 +8,13 @@ typedef struct {
   void (*function)(uint8_t);
 } menu_item_t;
 
-#define NUM_ITEMS 3
+#define NUM_ITEMS 4
 #define NUM_ELEMENTS 32
 
 void distance(uint8_t);
 void speed(uint8_t);
 void time(uint8_t);
-void fuckyou(uint8_t);
+void about(uint8_t);
 
 menu_item_t menu[NUM_ITEMS] = {
   {.name = "Distance",
@@ -23,6 +23,8 @@ menu_item_t menu[NUM_ITEMS] = {
    .function = &speed},
   {.name = "Time",
    .function = &time},
+  {.name = "About", 
+   .function = &about}
 };
 
 void menu_print(void)
@@ -242,3 +244,10 @@ void menu_handler(void)
   }
 }
 
+void about(uint8_t line)
+{
+  screen_setcursor(1, line, 0);
+  screen_print_string("Interracial");
+  screen_setcursor(1, line+1, 0);
+  screen_print_string("bullshit v0.2");
+}
