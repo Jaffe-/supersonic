@@ -58,14 +58,14 @@ void distance(uint8_t line)
     uint8_t cnt = 0;
     for (uint8_t i = 0; i < NUM_ELEMENTS; i++) {
       float distance = get_time(buffer_read()) * 340.0;
-      if (distance > TOL) {
-	distance_sum += distance;
-	if (distance > max) 
-	  max = distance;
-	if (distance < min)
-	  min = distance;
-	cnt++;
-      }
+//      if (distance > TOL) {
+      distance_sum += distance;
+      if (distance > max) 
+	max = distance;
+      if (distance < min)
+	min = distance;
+      cnt++;
+      //}
     }
 
     float mean;
