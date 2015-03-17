@@ -9,8 +9,10 @@
 #include "input.h"
 #include "animation.h"
 
+
 int main()
-{  
+{
+  
   //while(1);
   display_setup(); 
   input_setup();

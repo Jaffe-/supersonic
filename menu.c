@@ -31,6 +31,7 @@ menu_item_t menu[NUM_ITEMS] = {
 
 void menu_print(void)
 {
+
   for (uint8_t i = 0; i < NUM_ITEMS; i++) {
     screen_setcursor(0, i, 2);
     screen_print_integer(i + 1);
