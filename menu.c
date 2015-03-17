@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include "display.h"
 #include "input.h"
+#include "pulse.h"
+#include "buffer.h"
 
 typedef struct {
   char* name;
@@ -51,7 +53,7 @@ void distance(uint8_t line)
   screen_setcursor(1, line, 0);
   screen_print_string("Mean: ");
 
-  if (buffer_unread_elements() >= NUM_ELEMENTS) {
+  if (buffer_unread_elements(&distance_buffer) >= NUM_ELEMENTS) {
     float distance_sum = 0;
 
     float min = 100000.0;
@@ -59,15 +61,15 @@ void distance(uint8_t line)
 
     uint8_t cnt = 0;
     for (uint8_t i = 0; i < NUM_ELEMENTS; i++) {
-      float distance = get_time(buffer_read()) * 340.0;
-//      if (distance > TOL) {
-      distance_sum += distance;
-      if (distance > max) 
-	max = distance;
-      if (distance < min)
-	min = distance;
-      cnt++;
-      //}
+      float distance = get_time(buffer_read(&distance_buffer)) * 340.0;
+      //if (distance > TOL) {
+	distance_sum += distance;
+	if (distance > max) 
+	  max = distance;
+	if (distance < min)
+	  min = distance;
+	cnt++;
+	//}
     }
 
     float mean;
@@ -112,38 +114,43 @@ void speed(uint8_t line)
 {
 
   screen_setcursor(1, line, 0);
-  screen_print_string("Speed: ");
+  screen_print_string("Mean:           ");
 
-  if (buffer_unread_elements() >= NUM_ELEMENTS) {
-    float distance_mean;
-    float distance_sum;
-    float distances[NUM_ELEMENTS];
-
-    uint8_t cnt = 0;
-    for (uint8_t i = 0; i < NUM_ELEMENTS; i++) {
-      float distance = get_time(buffer_read()) * 340.0;
-      if (distance > TOL) 
-	distances[cnt++] = distance; 
-    } 
-
+  if (buffer_unread_elements(&speed_buffer) >= 8) {
     float speed_mean = 0;
-    for (uint8_t i = 0; i < cnt - 1; i++) {
-      speed_mean += (distances[i+1] - distances[i]) * 976;
-    }
+    float speed_min = 100000.0;
+    float distance;
+    for (uint8_t i = 0; i < 8; i++) {
+      distance = get_time(buffer_read(&speed_buffer)) * 340.0;
+      float speed = distance * 30.5;
+      speed_mean += speed;
+      if (speed < speed_min) 
+	speed_min = speed;
+    } 
     
-    speed_mean /= (float)(cnt - 1);
-    
-    screen_setcursor(1, line + 1, 0);
-    screen_print_string("              ");
-    screen_setcursor(1, line + 1, 0); 
-    
+    speed_mean /= (float)8;
+
+    screen_setcursor(1, line, 6);
     if (speed_mean >= 1.0) {
       screen_print_float(speed_mean);
       screen_print_string(" m/s");
     }
+    else {
+      screen_print_float(speed_mean * 100);
+      screen_print_string(" cm/s");
+    }
+
+    screen_setcursor(1, line + 1, 0);
+    screen_print_string("Min:            ");
+    screen_setcursor(1, line + 1, 6); 
+    
+    if (speed_min >= 1.0) {
+      screen_print_float(speed_min);
+      screen_print_string(" m/s");
+    }
     
     else {
-      screen_print_integer(speed_mean * 100);
+      screen_print_integer(speed_min * 100);
       screen_print_string(" cm/s");
     }
     
@@ -156,18 +163,13 @@ void time(uint8_t line)
   screen_setcursor(1, line, 0);
   screen_print_string("Time: ");
 
-  if (buffer_unread_elements() >= 8) {
+  if (buffer_unread_elements(&distance_buffer) >= 32) {
     screen_setcursor(1, line, 6);
     screen_print_string("         ");
     screen_setcursor(1, line, 6);
-    screen_print_float(get_time(buffer_read()) * 1000.0);
+    screen_print_float(get_time(buffer_read(&distance_buffer)) * 1000.0);
     screen_print_string(" ms");
   }
-}
-
-void fuckyou(uint8_t line)
-{
-
 }
 
 #define MODE_MENU 0

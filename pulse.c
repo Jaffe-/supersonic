@@ -15,48 +15,18 @@ static uint8_t state;
 
 #define BUFFER_LENGTH 64
 
-uint16_t buffer[BUFFER_LENGTH] = {0};
+uint16_t distance_buffer_values[BUFFER_LENGTH];
+uint16_t speed_buffer_values[BUFFER_LENGTH];
 
-uint8_t write_pos;
-uint8_t read_pos;
-uint8_t written;
-uint8_t read;
+buffer_t distance_buffer = {.length = BUFFER_LENGTH,
+			    .read_pos = 0,
+			    .write_pos = 0,
+			    .values = distance_buffer_values};
 
-uint8_t unread;
-
-void buffer_write(uint16_t value)
-{
-  buffer[write_pos] = value;
-    
-  if (++write_pos == BUFFER_LENGTH) 
-    write_pos = 0;
-        
-}
-
-uint16_t buffer_read() 
-{
-  static cnt = 0;
-  uint16_t value = buffer[read_pos];
-  
-  if (++read_pos == BUFFER_LENGTH) 
-    read_pos = 0;
-
-  //  unread--;
-
-  return value;
-}
-
-uint8_t buffer_unread_elements()
-{
-  if (write_pos >= read_pos)
-    return write_pos - read_pos;
-  else {
-    return BUFFER_LENGTH - (read_pos - write_pos);
-  }
-
-  //return unread;
-  
-}
+buffer_t speed_buffer = {.length = BUFFER_LENGTH,
+			 .read_pos = 0,
+			 .write_pos = 0,
+			 .values = speed_buffer_values};
 
 void stop_pulse()
 {
@@ -74,9 +44,16 @@ void reset_timer()
   TCNT1 = 0;
 }
 
+
 void read_timer()
 {
-  buffer_write(TCNT1);
+  static uint16_t last_value;
+  buffer_write(&distance_buffer, TCNT1);
+  if (TCNT1 >= last_value)
+    buffer_write(&speed_buffer, TCNT1 - last_value);
+  else
+    buffer_write(&speed_buffer, last_value - TCNT1);
+  last_value = TCNT1;
 }
 
 void pulse_setup()

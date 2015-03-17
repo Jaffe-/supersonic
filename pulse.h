@@ -1,5 +1,8 @@
 #pragma once
+#include <stdint.h>
+#include "buffer.h"
+
+extern buffer_t distance_buffer;
+extern buffer_t speed_buffer;
 
 void pulse_setup();
-uint16_t buffer_read();
-uint8_t buffer_unread_elements();
